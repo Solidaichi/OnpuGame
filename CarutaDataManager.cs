@@ -20,13 +20,14 @@ public class CarutaDataManager : MonoBehaviour
     void Awake()
     {
         // パス名取得
-#if UNITY_EDITOR
+        filePath = Application.persistentDataPath + "/" + fileName;
+/*#if UNITY_EDITOR
         filePath = Application.dataPath + "/" + fileName;
 
 #elif UNITY_IOS
-    filepath = Application.persistentDataPath + "/" + fileName;    
+    filepath = Application.persistentDataPath + "/" + fileName; 
 
-#endif
+#endif*/
 
         // ファイルがないとき、ファイル作成
         if (!File.Exists(filePath))

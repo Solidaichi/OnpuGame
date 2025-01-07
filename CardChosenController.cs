@@ -35,7 +35,7 @@ public class CardChosenController : MonoBehaviour
 
     // スコア加点用変数
     [HideInInspector]
-    public static int scoreInt = 0;
+    public static int scoreInt;
 
     // スコア表記用テキスト・ゲームオブジェクト
     [Header("スコア表記用テキスト（ゲームオブジェクト設置）"), SerializeField]
@@ -51,8 +51,24 @@ public class CardChosenController : MonoBehaviour
     // AudioSourceの準備
     private AudioSource audioSource;
 
+    // カードタップ用のAudioSource準備
+    [Header("カードタップ用のAudioSourceが入ったゲームオブジェクトを設定"), SerializeField]
+    private GameObject audioSourceObj;
+
+    private AudioSource audioSource2;
+
     [Header("スタート時の笛の音"), SerializeField]
     private AudioClip startSound;
+    [Header("タップした時の音"), SerializeField]
+    private AudioClip tapSound;
+    [Header("正解した時の音"), SerializeField]
+    private AudioClip correctSound;
+
+    /// <Summary>====================================
+    /// 正解用テキスト表示
+    /// </Summary>====================================
+    [Header("正解表示用テキスト（ゲームオブジェクト）設定"), SerializeField]
+    private GameObject correctTextObj;
 
     /// <Summary>=====================================
     /// 制限時間の変数設定
@@ -116,10 +132,16 @@ public class CardChosenController : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        // スコアを初期化
+        scoreInt = 0;
+
         // score用表示のテキストコンポーネントを用意
         scoreText = scoreTextObj.GetComponent<TextMeshProUGUI>();
         // AudioSourceのコンポーネント準備
         audioSource = this.GetComponent<AudioSource>();
+
+        // カードタップ用のAudioSourceコンポーネントを用意
+        audioSource2 = audioSourceObj.GetComponent<AudioSource>();
 
         // Resourcesのカルタフォルダからカルタを読み込む
         carutaCardRandom = Resources.LoadAll("CarutaCard", typeof(GameObject)).Cast<GameObject>().ToArray();
@@ -264,13 +286,15 @@ public class CardChosenController : MonoBehaviour
                     {
                         Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
                         RaycastHit hit = new RaycastHit();
+                        audioSource2.PlayOneShot(tapSound);
                         if (Physics.Raycast(ray, out hit))
                         {
                             clickedGameObject = hit.collider.gameObject;
                             Debug.Log(clickedGameObject.gameObject.tag);//ゲームオブジェクトのタグを出力
                             if (clickedGameObject.gameObject.tag == questionTag)
                             {
-                                Debug.Log("正解");
+                                //Debug.Log("正解");
+                                StartCoroutine(CorrectMessage());
                                 Destroy(clickedGameObject);
                                 scoreInt += 10;
                                 scoreText.text = scoreInt.ToString(); 
@@ -286,11 +310,8 @@ public class CardChosenController : MonoBehaviour
                             else
                             {
                                 Debug.Log("不正解");
-                                if (scoreInt > 0)
-                                {
-                                    scoreInt -= 10;
-                                    scoreText.text = scoreInt.ToString();
-                                }   
+                                scoreInt -= 10;
+                                scoreText.text = scoreInt.ToString();       
                             }
                         }
                     }
@@ -317,6 +338,7 @@ public class CardChosenController : MonoBehaviour
 
             if (!introductionStopper && startStopper)
             {
+                audioSource.PlayOneShot(startSound);
                 StartCoroutine(StartActive());
             }          
         }
@@ -344,9 +366,22 @@ public class CardChosenController : MonoBehaviour
     IEnumerator StartActive()
     {
         startImageObj.SetActive(true);
-        audioSource.PlayOneShot(startSound);
+        
         yield return new WaitForSeconds(2);       
         startImageObj.SetActive(false);
         startStopper = false;
     }
+
+    /// <summary>=====================================
+    /// 正解表示用コルーチン
+    /// </summary>=====================================
+    /// <returns></returns>
+    IEnumerator CorrectMessage() 
+    {
+        correctTextObj.SetActive(true);
+        audioSource2.PlayOneShot(correctSound);
+        yield return new WaitForSeconds(2);
+        correctTextObj.SetActive(false);
+    }
+
 }

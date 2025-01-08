@@ -5,7 +5,6 @@
 [動作画面Youtubeリンク（神経衰弱）](https://youtu.be/LmWDYMmJoNQ)<BR>
 
 ## 主なプログラム紹介<br>
-<br>
 CardChosenController.cs → おんぷかるたのメインコード<br>
 CarutaDataManager.cs → カルタ版保存データ取り扱いコード<br>
 CarutaRanking.cs　→　ランキング表示用コード<br>
